@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 // user will input N and Num_ts
 	const int N = atoi(argv[1]);
 	const int Num_ts = atoi(argv[2]);
-        
+        const int WRITE = atoi(argv[3]); 
 	// basic problem parameters
 	const float x_left = -10; //m, left edge of domain
 	const float x_right = 10; //m, right edge of domain
@@ -108,12 +108,12 @@ int main(int argc, char* argv[])
 	std::chrono::duration<double> elapsed = finish - start;
 	std::cout << "Elapsed time: " << elapsed.count() << " s\n";
 
-       // if (WRITE_OUT == 1)
-       // {
+       if (WRITE == 1)
+       {
 	// time stepping complete, write the output
 	    std::cout << "Writing output." << " \n";
 	    write_output(X,F,N);
-       // }
+       }
 
 	// clean up environment
 	delete [] X;
