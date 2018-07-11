@@ -1,0 +1,5 @@
+.project
+.settings
+.cproject
+*.o
+OMP_LAX
