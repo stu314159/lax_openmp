@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 // user will input N and Num_ts
 	const int N = atoi(argv[1]);
 	const int Num_ts = atoi(argv[2]);
-
+        
 	// basic problem parameters
 	const float x_left = -10; //m, left edge of domain
 	const float x_right = 10; //m, right edge of domain
@@ -59,11 +59,14 @@ int main(int argc, char* argv[])
 	float * F; float * F_new;
 	initialize_solution_array(F_even,X,N);
 
-    auto start = std::chrono::high_resolution_clock::now();
+        auto start = std::chrono::high_resolution_clock::now();
 
 
 
 	// main time stepping loop
+//#pragma omp target map(alloc:F_even[:N]) map(alloc:F_odd[:N])
+#pragma omp target data map(tofrom: F_even, F_odd)
+{
 	for(int ts = 0; ts<Num_ts; ts++)
 	{
 		if ((ts%1000)==0)
@@ -77,7 +80,7 @@ int main(int argc, char* argv[])
 		} else {
 			F = F_odd; F_new = F_even;
 		}
-
+#pragma omp target
 #pragma omp parallel for
 		for(int i = 0; i < N; i++)
 		{
@@ -99,14 +102,18 @@ int main(int argc, char* argv[])
 		}
 
 	}
+}
 	auto finish = std::chrono::high_resolution_clock::now();
 
 	std::chrono::duration<double> elapsed = finish - start;
 	std::cout << "Elapsed time: " << elapsed.count() << " s\n";
 
+       // if (WRITE_OUT == 1)
+       // {
 	// time stepping complete, write the output
-	std::cout << "Writing output." << " \n";
-	write_output(X,F,N);
+	    std::cout << "Writing output." << " \n";
+	    write_output(X,F,N);
+       // }
 
 	// clean up environment
 	delete [] X;

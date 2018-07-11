@@ -1,5 +1,5 @@
-CC=g++
-CC_FLAGS=-fopenmp -O3 -std=c++11
+CC=xlc++
+CC_FLAGS=-fopenmp -O3 -std=c++11 -qtgtarch=sm_60 -qoffload 
 
 SOURCES=lax_wave.cpp
 OBJECTS=lax_wave.o
