@@ -1,5 +1,5 @@
 CC=g++
-CC_FLAGS=-fopenmp -O3
+CC_FLAGS=-fopenmp -O3 -std=c++11
 
 SOURCES=lax_wave.cpp
 OBJECTS=lax_wave.o
