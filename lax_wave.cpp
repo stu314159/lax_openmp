@@ -5,6 +5,7 @@
 #include <fstream>
 #include <chrono>
 
+// spatial initialization 
 void initialize_spatial_array(float * X, const float x_l, const float dx,
 		const int N)
 {
