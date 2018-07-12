@@ -50,8 +50,7 @@ int main(int argc, char* argv[])
 	const float dx = (x_right - x_left)/(N-1); // grid point spacing
 	const float u = 1.; //m/s, wave speed
 	const float dt = 0.6*dx/u; //s, time step size
-	const float nu = u*dx/dt; //courant number
-
+	
 	float * X = new float[N]; // spatial array
 	initialize_spatial_array(X,x_left,dx,N);
 
