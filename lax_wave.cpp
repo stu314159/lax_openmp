@@ -80,8 +80,8 @@ int main(int argc, char* argv[])
 		} else {
 			F = F_odd; F_new = F_even;
 		}
-#pragma omp target 
-#pragma omp parallel for
+#pragma omp target teams   
+#pragma omp distribute parallel for schedule(static,1)
 		for(int i = 0; i < N; i++)
 		{
 			int x_m; int x_p;

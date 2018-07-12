@@ -1,6 +1,6 @@
 CC=xlc++
 CC_FLAGS=-fopenmp -O3 -std=c++11 -qtgtarch=sm_60 -qoffload 
-#CC_FLAGS=-fopenmp -O3 -std=c++11 -qtgtarch=sm_60
+#CC_FLAGS=-fopenmp -O3 -std=c++11 
 SOURCES=lax_wave.cpp
 OBJECTS=lax_wave.o
 
