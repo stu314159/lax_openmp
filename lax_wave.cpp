@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
 		} else {
 			F = F_odd; F_new = F_even;
 		}
-#pragma omp target
+#pragma omp target 
 #pragma omp parallel for
 		for(int i = 0; i < N; i++)
 		{
