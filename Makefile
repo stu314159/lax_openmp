@@ -1,6 +1,10 @@
 CC=xlc++
-#CC_FLAGS=-fopenmp -O3 -std=c++11 -qtgtarch=sm_60 -qoffload
-CC_FLAGS=-fopenmp -O3 -std=c++11 -qtgtarch=sm_60
+
+ifeq ($(OFFLOAD),yes)
+	CC_FLAGS=-fopenmp -O3 -std=c++11 -qtgtarch=sm_60 -qoffload
+else 
+	CC_FLAGS=-fopenmp -O3 -std=c++11 
+endif
 
 SOURCES=lax_wave.cpp
 OBJECTS=lax_wave.o
@@ -14,4 +18,6 @@ $(TARGET): $(OBJECTS)
 	$(CC) $(CC_FLAGS) -o $@ $^ $(LIBS)
 
 clean:
-	rm -f *.o $(TARGET) $~
+
+	rm -f *.o $(TARGET) *~
+

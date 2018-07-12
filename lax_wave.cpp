@@ -42,7 +42,8 @@ int main(int argc, char* argv[])
 // user will input N and Num_ts
 	const int N = atoi(argv[1]);
 	const int Num_ts = atoi(argv[2]);
-        const int WRITE = atoi(argv[3]); 
+  const int WRITE_OUT = atoi(argv[3]); 
+
 	// basic problem parameters
 	const float x_left = -10; //m, left edge of domain
 	const float x_right = 10; //m, right edge of domain
@@ -65,7 +66,7 @@ int main(int argc, char* argv[])
 
 	// main time stepping loop
 //#pragma omp target map(alloc:F_even[:N]) map(alloc:F_odd[:N])
-#pragma omp target data map(tofrom: F_even, F_odd)
+#pragma omp target data map(tofrom: F_even[:N], F_odd[:N])
 {
 	for(int ts = 0; ts<Num_ts; ts++)
 	{
@@ -80,8 +81,8 @@ int main(int argc, char* argv[])
 		} else {
 			F = F_odd; F_new = F_even;
 		}
-#pragma omp target
-#pragma omp parallel for
+#pragma omp target teams   
+#pragma omp distribute parallel for schedule(static,1)
 		for(int i = 0; i < N; i++)
 		{
 			int x_m; int x_p;
@@ -108,12 +109,14 @@ int main(int argc, char* argv[])
 	std::chrono::duration<double> elapsed = finish - start;
 	std::cout << "Elapsed time: " << elapsed.count() << " s\n";
 
-       if (WRITE == 1)
+
+       if (WRITE_OUT == 1)
        {
-	// time stepping complete, write the output
-	    std::cout << "Writing output." << " \n";
-	    write_output(X,F,N);
+	         // time stepping complete, write the output
+	          std::cout << "Writing output." << " \n";
+	          write_output(X,F,N);
        }
+
 
 	// clean up environment
 	delete [] X;
