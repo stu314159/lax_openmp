@@ -13,4 +13,4 @@ $(TARGET): $(OBJECTS)
 	$(CC) $(CC_FLAGS) -o $@ $^ $(LIBS)
 
 clean:
-	rm -f $.o $(TARGET) $~
+	rm -f *.o $(TARGET) *~

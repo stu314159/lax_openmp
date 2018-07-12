@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
 
 	// main time stepping loop
 //#pragma omp target map(alloc:F_even[:N]) map(alloc:F_odd[:N])
-#pragma omp target data map(tofrom: F_even, F_odd)
+#pragma omp target data map(tofrom: F_even[:N], F_odd[:N])
 {
 	for(int ts = 0; ts<Num_ts; ts++)
 	{
