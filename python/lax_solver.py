@@ -14,6 +14,7 @@ import numpy as np
 import time
 import matplotlib.pyplot as plt
 import numba
+from numba import cuda
 
 
 parser = argparse.ArgumentParser(prog='lax_solver.py',
@@ -24,6 +25,22 @@ parser.add_argument('Num_ts',type=int)
 parser.add_argument('solver',type=int)
 parser.add_argument('Write_output',type=int)
 args = parser.parse_args()
+
+@cuda.jit('void(float64[:],float64[:],float64,float64,int32)')
+def lax_numba_cuda(F_out,F_in,dx,dt,N):
+     # get thread data
+     tx = cuda.threadIdx.x;
+     bx = cuda.blockIdx.x;
+     bw = cuda.blockDim.x;
+     tid = tx + bx*bw;
+     x_p = tid+1; x_m = tid-1;
+     if(x_m<0):
+         x_m = N-1;
+     if(x_p == N):
+         x_p = 0;
+         
+     if (tid<N):
+        F_out[tid] = 0.5*(F_in[x_p]+F_in[x_m])-(dt/(2.*dx))*(F_in[x_p]-F_in[x_m])
 
 @numba.jit()
 def lax_numba(F,dx,dt,Num_ts):
@@ -71,7 +88,7 @@ Write_output = args.Write_output
 # initialize the problem
 x_left = -10.; # left boundary
 x_right = 10.; # right boundary
-u = 1;  # wave speed
+u = 1.;  # wave speed
 
 X = np.linspace(x_left,x_right,num=N,dtype=np.float64)
 dx = X[1]-X[0];
@@ -86,6 +103,35 @@ if (solver == 1): # regular numpy
     F = lax_numpy(F,dx,dt,Num_ts);
 if (solver == 2): # numba jit
     F = lax_numba(F,dx,dt,np.int32(Num_ts));
+if (solver == 3): # numba cuda jit
+    F_even = np.copy(F);
+    F_odd = np.copy(F);
+    # copy array to gpu
+    dF_even = cuda.to_device(F_even)
+    dF_odd = cuda.to_device(F_odd)
+    
+    # configure thread grid
+    threads_per_block = 256;
+    num_blocks = np.ceil(float(N)/float(threads_per_block))
+    griddim = int(num_blocks);
+    blockdim = threads_per_block
+    
+    # launch kernel
+    for ts in range(Num_ts):
+        
+        if (ts%2)==0:
+            lax_numba_cuda[griddim,blockdim](dF_odd,dF_even,
+                          dx,dt,np.int32(N));
+        else:
+            lax_numba_cuda[griddim,blockdim](dF_even,dF_odd,
+                          dx,dt,np.int32(N));
+    
+    
+    # copy data back to host
+    if (Num_ts%2==0):
+        F = dF_even.copy_to_host();
+    else:
+        F = dF_odd.copy_to_host();
 
 
 time_stop = time.time();
